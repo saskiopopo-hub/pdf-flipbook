@@ -27,6 +27,23 @@ jobs:
       - name: Install packages
         run: flutter pub get
 
+      - name: Allow plugins to compile against SDK 36
+        run: |
+          mkdir -p "$HOME/.gradle/init.d"
+          cat > "$HOME/.gradle/init.d/compilesdk.gradle" <<'EOF'
+          allprojects {
+            afterEvaluate { project ->
+              if (project.hasProperty('android')) {
+                try {
+                  project.android.compileSdk = 36
+                } catch (Throwable t) {
+                  project.android.compileSdkVersion(36)
+                }
+              }
+            }
+          }
+          EOF
+
       - name: Build APK
         run: flutter build apk --release
 
